@@ -102,7 +102,7 @@ const Events = () => {
               Our <span className="gradient-text">Events</span>
             </h1>
             <p className="text-xl text-muted-foreground">
-              Discover upcoming events and register to join the fun!
+              Discover upcoming events and buy your tickets!
             </p>
           </motion.div>
         </div>

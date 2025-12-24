@@ -71,7 +71,7 @@ const GameDay = () => {
 
             <div className="mt-8">
               <Button asChild variant="hero" size="xl">
-                <Link to="/events">Register Now</Link>
+                <Link to="/events">Buy Tickets</Link>
               </Button>
             </div>
           </motion.div>
@@ -195,10 +195,10 @@ const GameDay = () => {
               Ready to Join the Fun?
             </h2>
             <p className="text-primary-foreground/80 mb-8 max-w-xl mx-auto">
-              Don't miss the next Game Day! Register now and secure your spot.
+              Don't miss the next Game Day! Get your tickets now.
             </p>
             <Button asChild size="xl" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90">
-              <Link to="/events">Register for Next Game Day</Link>
+              <Link to="/events">Buy Tickets for Next Game Day</Link>
             </Button>
           </motion.div>
         </div>
