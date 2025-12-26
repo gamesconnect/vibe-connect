@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Loader2, CheckCircle, Phone, User, Mail, Palette } from "lucide-react";
+import { X, Loader2, CheckCircle, Phone, User, Mail, Palette, Clock } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -31,7 +31,7 @@ const networks = [
 
 const PaymentForm = ({ isOpen, onClose, eventTitle, eventPrice, eventId, type }: PaymentFormProps) => {
   const { toast } = useToast();
-  const [step, setStep] = useState<"form" | "payment" | "success">("form");
+  const [step, setStep] = useState<"form" | "payment" | "pending" | "success">("form");
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -135,11 +135,21 @@ const PaymentForm = ({ isOpen, onClose, eventTitle, eventPrice, eventId, type }:
       if (error) throw error;
 
       if (data.success) {
-        setStep("success");
-        toast({
-          title: "Payment Successful!",
-          description: `Your ticket for ${eventTitle} has been confirmed.`,
-        });
+        if (data.pending) {
+          // Payment is pending - user needs to approve on phone
+          setStep("pending");
+          toast({
+            title: "Payment Initiated",
+            description: "Please check your phone and approve the payment prompt.",
+          });
+        } else {
+          // Payment completed successfully
+          setStep("success");
+          toast({
+            title: "Payment Successful!",
+            description: `Your ticket for ${eventTitle} has been confirmed.`,
+          });
+        }
       } else {
         throw new Error(data.message || "Payment failed");
       }
@@ -344,6 +354,36 @@ const PaymentForm = ({ isOpen, onClose, eventTitle, eventPrice, eventId, type }:
                     ) : (
                       `Pay GHS ${eventPrice}`
                     )}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {step === "pending" && (
+              <div className="text-center py-6">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", duration: 0.5 }}
+                >
+                  <Clock className="w-20 h-20 text-secondary mx-auto mb-4 animate-pulse" />
+                </motion.div>
+                <h3 className="font-display font-bold text-2xl mb-2">Awaiting Payment</h3>
+                <p className="text-muted-foreground mb-4">
+                  A payment prompt has been sent to <strong>{formData.phone}</strong>
+                </p>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Please check your phone and enter your PIN to approve the payment. Once approved, your ticket will be confirmed.
+                </p>
+                <div className="bg-muted rounded-xl p-4 text-sm text-muted-foreground mb-6">
+                  <p>💡 Didn't receive the prompt? Make sure you have sufficient balance and try again.</p>
+                </div>
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={() => setStep("payment")} className="flex-1">
+                    Try Again
+                  </Button>
+                  <Button onClick={resetForm} className="flex-1">
+                    Done
                   </Button>
                 </div>
               </div>

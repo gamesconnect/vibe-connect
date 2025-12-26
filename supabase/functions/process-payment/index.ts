@@ -54,9 +54,19 @@ const handler = async (req: Request): Promise<Response> => {
     const paymentResult = await paymentResponse.json();
     console.log("Payment API response:", paymentResult);
 
-    // Check actual payment status from API response (not just HTTP status)
+    // Determine payment status from API response
+    // The API returns success:true when initiated, but status can be:
+    // - "failed" with collection status "200" = payment pending (awaiting user approval on phone)
+    // - actual failure would have different indicators
+    const collectionStatus = paymentResult.data?.collection?.message?.status;
+    const collectionDescription = paymentResult.data?.collection?.message?.description;
+    
+    // Payment is pending if collection was initiated successfully
+    const paymentPending = collectionStatus === "200" && collectionDescription?.includes("Awaiting processing");
+    // Payment is successful if the API explicitly says so without pending indicators
     const paymentSuccessful = paymentResult.success === true && paymentResult.status !== "failed";
-    console.log("Payment successful:", paymentSuccessful);
+    
+    console.log("Payment status - pending:", paymentPending, "successful:", paymentSuccessful);
 
     // Generate a reference
     const reference = `GC-${Date.now()}-${Math.random().toString(36).substring(7)}`;
@@ -66,12 +76,15 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Determine final status
+    const finalStatus = paymentSuccessful ? "completed" : (paymentPending ? "pending" : "failed");
+
     // Log the payment transaction
     const { error: paymentLogError } = await supabase.from("payments").insert({
       reference,
       email: paymentData.email,
       amount: parseFloat(paymentData.amount),
-      status: paymentSuccessful ? "completed" : "failed",
+      status: finalStatus,
       metadata: {
         ...paymentData.metadata,
         api_response: paymentResult,
@@ -84,52 +97,63 @@ const handler = async (req: Request): Promise<Response> => {
       console.error("Error logging payment:", paymentLogError);
     }
 
-    // Update the relevant table based on payment type
-    if (paymentSuccessful && paymentData.metadata) {
+    // Update the relevant table based on payment type (for pending or successful payments)
+    if ((paymentSuccessful || paymentPending) && paymentData.metadata) {
       const { type, registration_id, booking_id, signup_id } = paymentData.metadata;
+      const updateStatus = paymentSuccessful ? "completed" : "pending";
       
       if (type === "registration" && registration_id) {
         await supabase
           .from("registrations")
           .update({
-            payment_status: "completed",
+            payment_status: updateStatus,
             payment_reference: reference,
             amount_paid: parseFloat(paymentData.amount),
-            verified: true,
+            verified: paymentSuccessful,
           })
           .eq("id", registration_id);
       } else if (type === "booking" && booking_id) {
         await supabase
           .from("travel_bookings")
           .update({
-            payment_status: "completed",
+            payment_status: updateStatus,
             payment_reference: reference,
             amount_paid: parseFloat(paymentData.amount),
-            verified: true,
+            verified: paymentSuccessful,
           })
           .eq("id", booking_id);
       } else if (type === "trivia" && signup_id) {
         await supabase
           .from("trivia_signups")
           .update({
-            payment_status: "completed",
+            payment_status: updateStatus,
             payment_reference: reference,
             amount_paid: parseFloat(paymentData.amount),
-            verified: true,
+            verified: paymentSuccessful,
           })
           .eq("id", signup_id);
       }
     }
 
+    // For pending payments, return success so the UI shows pending state
+    const responseSuccess = paymentSuccessful || paymentPending;
+    let message = "Payment failed";
+    if (paymentSuccessful) {
+      message = "Payment processed successfully";
+    } else if (paymentPending) {
+      message = "Payment initiated - please check your phone and approve the payment prompt";
+    }
+
     return new Response(
       JSON.stringify({
-        success: paymentSuccessful,
+        success: responseSuccess,
+        pending: paymentPending,
         reference,
-        message: paymentSuccessful ? "Payment processed successfully" : "Payment failed - please check your phone and approve the payment prompt",
+        message,
         data: paymentResult,
       }),
       {
-        status: paymentSuccessful ? 200 : 400,
+        status: responseSuccess ? 200 : 400,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
