@@ -33,6 +33,7 @@ const PaymentForm = ({ isOpen, onClose, eventTitle, eventPrice, eventId, type }:
   const { toast } = useToast();
   const [step, setStep] = useState<"form" | "payment" | "pending" | "success">("form");
   const [loading, setLoading] = useState(false);
+  const [linkedRecordId, setLinkedRecordId] = useState<string | undefined>(undefined);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -73,61 +74,67 @@ const PaymentForm = ({ isOpen, onClose, eventTitle, eventPrice, eventId, type }:
     setLoading(true);
 
     try {
-      // Format phone number to international format
-      const phoneNumber = "233" + formData.phone.substring(1);
+      // Use local Ghana format (0XXXXXXXXX) for the payment provider
+      const accountNumber = formData.phone.trim();
 
-      // First, create the registration record
-      let registrationId: string | undefined;
+      // First, create the registration record (only once) and reuse it on retries
+      let recordId = linkedRecordId;
 
-      if (type === "event") {
-        // Only include event_id if it's a valid UUID (not a sample/hardcoded ID)
-        const isValidUUID = eventId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(eventId);
-        
-        const { data, error } = await supabase
-          .from("registrations")
-          .insert({
-            event_id: isValidUUID ? eventId : null,
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            team_color: formData.teamColor,
-            payment_status: "pending",
-            amount_paid: 0,
-          })
-          .select("id")
-          .single();
+      if (!recordId) {
+        if (type === "event") {
+          // Only include event_id if it's a valid UUID (not a sample/hardcoded ID)
+          const isValidUUID =
+            eventId &&
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(eventId);
 
-        if (error) throw error;
-        registrationId = data.id;
-      } else if (type === "trivia") {
-        const { data, error } = await supabase
-          .from("trivia_signups")
-          .insert({
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            payment_status: "pending",
-            amount_paid: 0,
-          })
-          .select("id")
-          .single();
+          const { data, error } = await supabase
+            .from("registrations")
+            .insert({
+              event_id: isValidUUID ? eventId : null,
+              name: formData.name,
+              email: formData.email,
+              phone: formData.phone,
+              team_color: formData.teamColor,
+              payment_status: "pending",
+              amount_paid: 0,
+            })
+            .select("id")
+            .single();
 
-        if (error) throw error;
-        registrationId = data.id;
+          if (error) throw error;
+          recordId = data.id;
+        } else if (type === "trivia") {
+          const { data, error } = await supabase
+            .from("trivia_signups")
+            .insert({
+              name: formData.name,
+              email: formData.email,
+              phone: formData.phone,
+              payment_status: "pending",
+              amount_paid: 0,
+            })
+            .select("id")
+            .single();
+
+          if (error) throw error;
+          recordId = data.id;
+        }
+
+        setLinkedRecordId(recordId);
       }
 
       // Call the payment edge function
       const { data, error } = await supabase.functions.invoke("process-payment", {
         body: {
-          accountNumber: phoneNumber,
+          accountNumber,
           amount: eventPrice.toString(),
           narration: `Ticket for ${eventTitle}`,
           network: formData.network,
           email: formData.email,
           metadata: {
             type: type === "event" ? "registration" : type,
-            registration_id: type === "event" ? registrationId : undefined,
-            signup_id: type === "trivia" ? registrationId : undefined,
+            registration_id: type === "event" ? recordId : undefined,
+            signup_id: type === "trivia" ? recordId : undefined,
           },
         },
       });
@@ -167,6 +174,7 @@ const PaymentForm = ({ isOpen, onClose, eventTitle, eventPrice, eventId, type }:
 
   const resetForm = () => {
     setStep("form");
+    setLinkedRecordId(undefined);
     setFormData({
       name: "",
       email: "",
