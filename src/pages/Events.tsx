@@ -1,83 +1,50 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EventCard, { Event } from "@/components/EventCard";
-
-const allEvents: Event[] = [
-  {
-    id: "1",
-    title: "Game Day: February Edition",
-    description: "Join us for our monthly game day extravaganza! Board games, video games, and team competitions await.",
-    date: "Sat, Feb 1, 2025",
-    location: "Nexus 9, East Legon",
-    price: 50,
-    image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&h=400&fit=crop",
-    category: "game-day",
-    spotsLeft: 8,
-  },
-  {
-    id: "2",
-    title: "Trivia Friday: Pop Culture",
-    description: "Test your knowledge on movies, music, and trending topics. Amazing prizes to be won!",
-    date: "Fri, Jan 31, 2025",
-    location: "Virtual (Zoom)",
-    price: 10,
-    image: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=600&h=400&fit=crop",
-    category: "trivia",
-  },
-  {
-    id: "3",
-    title: "Cape Coast Adventure Trip",
-    description: "Explore the historic Cape Coast Castle, enjoy beach vibes, and create unforgettable memories.",
-    date: "Feb 14-16, 2025",
-    location: "Cape Coast",
-    price: 800,
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop",
-    category: "travel",
-    spotsLeft: 12,
-  },
-  {
-    id: "4",
-    title: "Valentine's Day Party",
-    description: "Celebrate love and friendship with good music, great vibes, and amazing people.",
-    date: "Fri, Feb 14, 2025",
-    location: "The View Bar, Osu",
-    price: 100,
-    image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&h=400&fit=crop",
-    category: "party",
-  },
-  {
-    id: "5",
-    title: "Game Day: January Recap",
-    description: "Our biggest game day yet with over 100 participants. Check out the highlights!",
-    date: "Sat, Jan 4, 2025",
-    location: "Nexus 9, East Legon",
-    price: 50,
-    image: "https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=600&h=400&fit=crop",
-    category: "game-day",
-    status: "past",
-  },
-  {
-    id: "6",
-    title: "Trivia Friday: Sports Edition",
-    description: "Sports fans united! Test your knowledge on football, basketball, and more.",
-    date: "Fri, Feb 7, 2025",
-    location: "Virtual (Zoom)",
-    price: 10,
-    image: "https://images.unsplash.com/photo-1461896836934- voices-537b1b9db5b?w=600&h=400&fit=crop",
-    category: "trivia",
-  },
-];
+import { supabase } from "@/integrations/supabase/client";
 
 const filters = ["All", "Upcoming", "Past", "Game Day", "Trivia", "Travel", "Party"];
 
 const Events = () => {
   const [activeFilter, setActiveFilter] = useState("All");
 
-  const filteredEvents = allEvents.filter((event) => {
+  const { data: events = [], isLoading } = useQuery({
+    queryKey: ["events"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("events")
+        .select("*")
+        .order("date", { ascending: true });
+
+      if (error) throw error;
+
+      return data.map((event) => ({
+        id: event.id,
+        title: event.title,
+        description: event.description || "",
+        date: new Date(event.date).toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+        location: event.location || "",
+        price: Number(event.price),
+        image: event.image_url || "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&h=400&fit=crop",
+        category: event.category,
+        maxCapacity: event.max_capacity || undefined,
+        status: event.status as "upcoming" | "past",
+      })) as Event[];
+    },
+  });
+
+  const filteredEvents = events.filter((event) => {
     if (activeFilter === "All") return true;
-    if (activeFilter === "Upcoming") return !event.status || event.status !== "past";
+    if (activeFilter === "Upcoming") return event.status !== "past";
     if (activeFilter === "Past") return event.status === "past";
     return event.category === activeFilter.toLowerCase().replace(" ", "-");
   });
@@ -132,7 +99,11 @@ const Events = () => {
       {/* Events Grid */}
       <section className="py-12">
         <div className="container mx-auto px-4">
-          {filteredEvents.length > 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          ) : filteredEvents.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredEvents.map((event, index) => (
                 <EventCard key={event.id} event={event} index={index} />
