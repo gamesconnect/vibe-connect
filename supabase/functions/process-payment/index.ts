@@ -54,6 +54,10 @@ const handler = async (req: Request): Promise<Response> => {
     const paymentResult = await paymentResponse.json();
     console.log("Payment API response:", paymentResult);
 
+    // Check actual payment status from API response (not just HTTP status)
+    const paymentSuccessful = paymentResult.success === true && paymentResult.status !== "failed";
+    console.log("Payment successful:", paymentSuccessful);
+
     // Generate a reference
     const reference = `GC-${Date.now()}-${Math.random().toString(36).substring(7)}`;
 
@@ -67,7 +71,7 @@ const handler = async (req: Request): Promise<Response> => {
       reference,
       email: paymentData.email,
       amount: parseFloat(paymentData.amount),
-      status: paymentResponse.ok ? "completed" : "failed",
+      status: paymentSuccessful ? "completed" : "failed",
       metadata: {
         ...paymentData.metadata,
         api_response: paymentResult,
@@ -81,7 +85,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Update the relevant table based on payment type
-    if (paymentResponse.ok && paymentData.metadata) {
+    if (paymentSuccessful && paymentData.metadata) {
       const { type, registration_id, booking_id, signup_id } = paymentData.metadata;
       
       if (type === "registration" && registration_id) {
@@ -119,13 +123,13 @@ const handler = async (req: Request): Promise<Response> => {
 
     return new Response(
       JSON.stringify({
-        success: paymentResponse.ok,
+        success: paymentSuccessful,
         reference,
-        message: paymentResponse.ok ? "Payment processed successfully" : "Payment failed",
+        message: paymentSuccessful ? "Payment processed successfully" : "Payment failed - please check your phone and approve the payment prompt",
         data: paymentResult,
       }),
       {
-        status: paymentResponse.ok ? 200 : 400,
+        status: paymentSuccessful ? 200 : 400,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
