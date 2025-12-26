@@ -80,10 +80,13 @@ const PaymentForm = ({ isOpen, onClose, eventTitle, eventPrice, eventId, type }:
       let registrationId: string | undefined;
 
       if (type === "event") {
+        // Only include event_id if it's a valid UUID (not a sample/hardcoded ID)
+        const isValidUUID = eventId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(eventId);
+        
         const { data, error } = await supabase
           .from("registrations")
           .insert({
-            event_id: eventId,
+            event_id: isValidUUID ? eventId : null,
             name: formData.name,
             email: formData.email,
             phone: formData.phone,
