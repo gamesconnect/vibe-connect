@@ -1,29 +1,52 @@
 import { motion } from "framer-motion";
-import { Users, Heart, Target, Sparkles } from "lucide-react";
+import { Trophy, Users, Flame, Target } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import TeamGrid from "@/components/TeamGrid";
 
-const values = [
+const teams = [
   {
-    icon: Heart,
-    title: "Community First",
-    description: "We believe in creating genuine connections and fostering a supportive environment for all members.",
+    name: "Team Red",
+    color: "bg-red-500",
+    borderColor: "border-red-500",
+    textColor: "text-red-500",
+    bgLight: "bg-red-500/10",
+    motto: "Burn Bright, Win Right",
+    description: "The fiery competitors who bring passion and intensity to every game. Known for their aggressive strategies and never-give-up attitude.",
+    wins: 12,
+    icon: Flame,
   },
   {
+    name: "Team Blue",
+    color: "bg-blue-500",
+    borderColor: "border-blue-500",
+    textColor: "text-blue-500",
+    bgLight: "bg-blue-500/10",
+    motto: "Cool Minds, Swift Wins",
+    description: "The strategic masterminds who think three steps ahead. Their calm demeanor hides a fierce competitive spirit.",
+    wins: 10,
     icon: Target,
-    title: "Excellence",
-    description: "We strive to deliver exceptional experiences in everything we do, from events to adventures.",
   },
   {
+    name: "Team Yellow",
+    color: "bg-yellow-500",
+    borderColor: "border-yellow-500",
+    textColor: "text-yellow-500",
+    bgLight: "bg-yellow-500/10",
+    motto: "Shine Together, Win Forever",
+    description: "The optimistic crew that brings energy and positivity to every event. Their teamwork is legendary.",
+    wins: 11,
     icon: Users,
-    title: "Inclusivity",
-    description: "Everyone is welcome here. We celebrate diversity and create spaces where all can thrive.",
   },
   {
-    icon: Sparkles,
-    title: "Fun & Creativity",
-    description: "Life is meant to be enjoyed. We bring creativity and excitement to every gathering.",
+    name: "Team Green",
+    color: "bg-green-500",
+    borderColor: "border-green-500",
+    textColor: "text-green-500",
+    bgLight: "bg-green-500/10",
+    motto: "Grow Strong, Last Long",
+    description: "The underdogs who always surprise. Known for their resilience and ability to come back from any deficit.",
+    wins: 9,
+    icon: Trophy,
   },
 ];
 
@@ -35,8 +58,10 @@ const Team = () => {
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden">
         <div className="absolute inset-0 bg-pattern opacity-50" />
-        <div className="absolute top-1/4 -left-32 w-96 h-96 rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute bottom-1/4 -right-32 w-96 h-96 rounded-full bg-secondary/20 blur-3xl" />
+        <div className="absolute top-1/4 -left-32 w-96 h-96 rounded-full bg-red-500/20 blur-3xl" />
+        <div className="absolute top-1/3 -right-32 w-96 h-96 rounded-full bg-blue-500/20 blur-3xl" />
+        <div className="absolute bottom-1/4 left-1/4 w-96 h-96 rounded-full bg-yellow-500/20 blur-3xl" />
+        <div className="absolute bottom-1/3 right-1/4 w-96 h-96 rounded-full bg-green-500/20 blur-3xl" />
 
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
@@ -45,38 +70,69 @@ const Team = () => {
             transition={{ duration: 0.6 }}
             className="text-center max-w-3xl mx-auto"
           >
+            {/* Team Colors Preview */}
+            <div className="flex justify-center gap-3 mb-8">
+              <div className="w-6 h-6 rounded-full bg-red-500 animate-bounce-subtle" style={{ animationDelay: "0s" }} />
+              <div className="w-6 h-6 rounded-full bg-blue-500 animate-bounce-subtle" style={{ animationDelay: "0.1s" }} />
+              <div className="w-6 h-6 rounded-full bg-yellow-500 animate-bounce-subtle" style={{ animationDelay: "0.2s" }} />
+              <div className="w-6 h-6 rounded-full bg-green-500 animate-bounce-subtle" style={{ animationDelay: "0.3s" }} />
+            </div>
+
             <h1 className="font-display text-4xl md:text-6xl font-bold mb-6">
-              Meet Our <span className="gradient-text">Team</span>
+              Choose Your <span className="gradient-text">Team</span>
             </h1>
             <p className="text-xl text-muted-foreground">
-              The passionate individuals behind Games & Connect who work tirelessly to create unforgettable experiences for our community.
+              At every Game Day, members are divided into four competitive teams. Pick your colors, build your legacy, and fight for glory!
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Team Grid */}
+      {/* Teams Grid */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-              Leadership <span className="gradient-text">Team</span>
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Meet the dedicated team that makes the magic happen.
-            </p>
-          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {teams.map((team, index) => (
+              <motion.div
+                key={team.name}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1, duration: 0.5 }}
+                className={`relative p-8 rounded-3xl border-2 ${team.borderColor} ${team.bgLight} overflow-hidden group`}
+              >
+                {/* Background glow */}
+                <div className={`absolute -top-20 -right-20 w-40 h-40 ${team.color} opacity-20 blur-3xl group-hover:opacity-30 transition-opacity`} />
 
-          <TeamGrid />
+                <div className="relative z-10">
+                  {/* Team Icon & Name */}
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className={`w-16 h-16 ${team.color} rounded-2xl flex items-center justify-center`}>
+                      <team.icon className="w-8 h-8 text-white" />
+                    </div>
+                    <div>
+                      <h3 className={`font-display text-2xl font-bold ${team.textColor}`}>{team.name}</h3>
+                      <p className="text-muted-foreground text-sm italic">"{team.motto}"</p>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-muted-foreground mb-6">{team.description}</p>
+
+                  {/* Stats */}
+                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${team.bgLight} border ${team.borderColor}`}>
+                    <Trophy className={`w-4 h-4 ${team.textColor}`} />
+                    <span className={`font-bold ${team.textColor}`}>{team.wins} Wins</span>
+                    <span className="text-muted-foreground text-sm">this season</span>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Our Values */}
+      {/* How It Works */}
       <section className="py-20 bg-muted">
         <div className="container mx-auto px-4">
           <motion.div
@@ -86,35 +142,39 @@ const Team = () => {
             className="text-center mb-12"
           >
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-              Our <span className="gradient-text">Values</span>
+              How Teams <span className="gradient-text">Work</span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              The principles that guide everything we do.
+              Every Game Day is a battle for supremacy between our four teams.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {values.map((value, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {[
+              { step: "01", title: "Pick Your Team", description: "Choose your team color when you register for Game Day. Loyalty is rewarded!" },
+              { step: "02", title: "Compete Together", description: "Join your teammates in various games and challenges throughout the event." },
+              { step: "03", title: "Earn Points", description: "Every win adds to your team's score. The team with the most points wins!" },
+            ].map((item, index) => (
               <motion.div
-                key={value.title}
+                key={item.step}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="p-6 bg-card rounded-2xl border border-border text-center"
+                className="text-center p-6 bg-card rounded-2xl border border-border"
               >
-                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <value.icon className="w-7 h-7 text-primary" />
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="font-display font-bold text-primary">{item.step}</span>
                 </div>
-                <h3 className="font-display font-bold text-xl mb-2">{value.title}</h3>
-                <p className="text-muted-foreground text-sm">{value.description}</p>
+                <h3 className="font-display font-bold text-lg mb-2">{item.title}</h3>
+                <p className="text-muted-foreground text-sm">{item.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Join the Team CTA */}
+      {/* CTA */}
       <section className="py-20">
         <div className="container mx-auto px-4">
           <motion.div
@@ -124,16 +184,16 @@ const Team = () => {
             className="text-center max-w-2xl mx-auto"
           >
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-              Want to <span className="gradient-text">Join Us?</span>
+              Ready to <span className="gradient-text">Compete?</span>
             </h2>
             <p className="text-muted-foreground mb-8">
-              We're always looking for passionate individuals to join our team. If you love building community and creating memorable experiences, we'd love to hear from you.
+              Join our next Game Day, pick your team, and show everyone what you're made of!
             </p>
             <a
-              href="/contact"
+              href="/game-day"
               className="inline-flex items-center justify-center px-8 py-4 rounded-xl bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity"
             >
-              Get in Touch
+              Register for Game Day
             </a>
           </motion.div>
         </div>
