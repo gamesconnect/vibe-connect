@@ -17,10 +17,10 @@ interface PaymentFormProps {
 }
 
 const teamColors = [
-  { name: "Red", color: "bg-primary", border: "border-primary" },
-  { name: "Yellow", color: "bg-secondary", border: "border-secondary" },
-  { name: "Blue", color: "bg-brand-blue", border: "border-brand-blue" },
-  { name: "Green", color: "bg-brand-green", border: "border-brand-green" },
+  { name: "Red", color: "bg-red-500", border: "border-red-500" },
+  { name: "Blue", color: "bg-blue-500", border: "border-blue-500" },
+  { name: "Yellow", color: "bg-yellow-500", border: "border-yellow-500" },
+  { name: "Green", color: "bg-green-500", border: "border-green-500" },
 ];
 
 const networks = [

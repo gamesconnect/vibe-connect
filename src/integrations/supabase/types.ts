@@ -181,6 +181,36 @@ export type Database = {
           },
         ]
       }
+      team_scores: {
+        Row: {
+          created_at: string
+          games_played: number
+          id: string
+          points: number
+          team_color: string
+          updated_at: string
+          wins: number
+        }
+        Insert: {
+          created_at?: string
+          games_played?: number
+          id?: string
+          points?: number
+          team_color: string
+          updated_at?: string
+          wins?: number
+        }
+        Update: {
+          created_at?: string
+          games_played?: number
+          id?: string
+          points?: number
+          team_color?: string
+          updated_at?: string
+          wins?: number
+        }
+        Relationships: []
+      }
       travel_bookings: {
         Row: {
           amount_paid: number | null
