@@ -1,7 +1,10 @@
 import { motion } from "framer-motion";
-import { Trophy, Users, Flame, Target } from "lucide-react";
+import { Trophy, Flame, Target, Users, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import TeamLeaderboard from "@/components/TeamLeaderboard";
 
 const teams = [
   {
@@ -12,7 +15,6 @@ const teams = [
     bgLight: "bg-red-500/10",
     motto: "Burn Bright, Win Right",
     description: "The fiery competitors who bring passion and intensity to every game. Known for their aggressive strategies and never-give-up attitude.",
-    wins: 12,
     icon: Flame,
   },
   {
@@ -23,7 +25,6 @@ const teams = [
     bgLight: "bg-blue-500/10",
     motto: "Cool Minds, Swift Wins",
     description: "The strategic masterminds who think three steps ahead. Their calm demeanor hides a fierce competitive spirit.",
-    wins: 10,
     icon: Target,
   },
   {
@@ -34,7 +35,6 @@ const teams = [
     bgLight: "bg-yellow-500/10",
     motto: "Shine Together, Win Forever",
     description: "The optimistic crew that brings energy and positivity to every event. Their teamwork is legendary.",
-    wins: 11,
     icon: Users,
   },
   {
@@ -45,8 +45,7 @@ const teams = [
     bgLight: "bg-green-500/10",
     motto: "Grow Strong, Last Long",
     description: "The underdogs who always surprise. Known for their resilience and ability to come back from any deficit.",
-    wins: 9,
-    icon: Trophy,
+    icon: TrendingUp,
   },
 ];
 
@@ -88,9 +87,50 @@ const Team = () => {
         </div>
       </section>
 
+      {/* Live Leaderboard */}
+      <section className="py-20 bg-muted">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
+              <Trophy className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Season Standings</span>
+            </div>
+            <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
+              Live <span className="gradient-text">Leaderboard</span>
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Track your team's progress throughout the season. Points are updated after every Game Day!
+            </p>
+          </motion.div>
+
+          <div className="max-w-2xl mx-auto">
+            <TeamLeaderboard />
+          </div>
+        </div>
+      </section>
+
       {/* Teams Grid */}
       <section className="py-20">
         <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
+              Meet the <span className="gradient-text">Teams</span>
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Each team has its own identity, strategy, and spirit. Which one will you join?
+            </p>
+          </motion.div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {teams.map((team, index) => (
               <motion.div
@@ -117,14 +157,7 @@ const Team = () => {
                   </div>
 
                   {/* Description */}
-                  <p className="text-muted-foreground mb-6">{team.description}</p>
-
-                  {/* Stats */}
-                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${team.bgLight} border ${team.borderColor}`}>
-                    <Trophy className={`w-4 h-4 ${team.textColor}`} />
-                    <span className={`font-bold ${team.textColor}`}>{team.wins} Wins</span>
-                    <span className="text-muted-foreground text-sm">this season</span>
-                  </div>
+                  <p className="text-muted-foreground">{team.description}</p>
                 </div>
               </motion.div>
             ))}
@@ -151,9 +184,9 @@ const Team = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {[
-              { step: "01", title: "Pick Your Team", description: "Choose your team color when you register for Game Day. Loyalty is rewarded!" },
+              { step: "01", title: "Pick Your Team", description: "Choose your team color when you buy tickets. Your loyalty builds your team's strength!" },
               { step: "02", title: "Compete Together", description: "Join your teammates in various games and challenges throughout the event." },
-              { step: "03", title: "Earn Points", description: "Every win adds to your team's score. The team with the most points wins!" },
+              { step: "03", title: "Earn Points", description: "Every win adds to your team's score. The team with the most points wins the season!" },
             ].map((item, index) => (
               <motion.div
                 key={item.step}
@@ -189,12 +222,9 @@ const Team = () => {
             <p className="text-muted-foreground mb-8">
               Join our next Game Day, pick your team, and show everyone what you're made of!
             </p>
-            <a
-              href="/game-day"
-              className="inline-flex items-center justify-center px-8 py-4 rounded-xl bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity"
-            >
-              Register for Game Day
-            </a>
+            <Button asChild size="lg">
+              <Link to="/game-day">Register for Game Day</Link>
+            </Button>
           </motion.div>
         </div>
       </section>
