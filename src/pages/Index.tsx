@@ -1,11 +1,10 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, Calendar, Gamepad2, Plane, Brain, Sparkles } from "lucide-react";
+import { ArrowRight, Calendar, Gamepad2, Users, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EventCard, { Event } from "@/components/EventCard";
-import GalleryPreview from "@/components/GalleryPreview";
 import TestimonialsCarousel from "@/components/TestimonialsCarousel";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import StatsCounter from "@/components/StatsCounter";
@@ -24,24 +23,24 @@ const upcomingEvents: Event[] = [
   },
   {
     id: "2",
-    title: "Trivia Friday: Pop Culture",
-    description: "Test your knowledge on movies, music, and trending topics. Amazing prizes to be won!",
+    title: "Community Hangout",
+    description: "A casual meetup for members to connect, network, and have fun together.",
     date: "Fri, Jan 31, 2025",
-    location: "Virtual (Zoom)",
-    price: 10,
+    location: "Accra Mall",
+    price: 20,
     image: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=600&h=400&fit=crop",
-    category: "trivia",
+    category: "event",
   },
   {
     id: "3",
-    title: "Cape Coast Adventure Trip",
-    description: "Explore the historic Cape Coast Castle, enjoy beach vibes, and create unforgettable memories.",
-    date: "Feb 14-16, 2025",
-    location: "Cape Coast",
-    price: 800,
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop",
-    category: "travel",
-    spotsLeft: 12,
+    title: "Game Day: March Edition",
+    description: "Another exciting game day with new games and challenges. Don't miss out!",
+    date: "Sat, Mar 1, 2025",
+    location: "Nexus 9, East Legon",
+    price: 50,
+    image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=600&h=400&fit=crop",
+    category: "game-day",
+    spotsLeft: 15,
   },
 ];
 
@@ -54,25 +53,18 @@ const features = [
     link: "/game-day",
   },
   {
-    icon: Brain,
-    title: "Trivia Friday",
-    description: "Weekly virtual trivia nights with exciting prizes",
-    color: "bg-secondary",
-    link: "/trivia",
-  },
-  {
-    icon: Plane,
-    title: "Travel Adventures",
-    description: "Explore Ghana and beyond with our curated group trips",
-    color: "bg-brand-blue",
-    link: "/travel",
-  },
-  {
     icon: Calendar,
     title: "Special Events",
     description: "Holiday parties, themed events, and community gatherings",
-    color: "bg-brand-green",
+    color: "bg-secondary",
     link: "/events",
+  },
+  {
+    icon: Users,
+    title: "Our Team",
+    description: "Meet the passionate people behind Games & Connect",
+    color: "bg-brand-blue",
+    link: "/team",
   },
 ];
 
@@ -179,7 +171,7 @@ const Index = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
@@ -237,31 +229,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Gallery Preview */}
-      <section className="py-20 bg-muted">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-12"
-          >
-            <div>
-              <h2 className="font-display text-3xl md:text-4xl font-bold mb-2">
-                Our <span className="gradient-text">Gallery</span>
-              </h2>
-              <p className="text-muted-foreground">Memories from our amazing events and adventures.</p>
-            </div>
-            <Button asChild variant="outline">
-              <Link to="/gallery">
-                View Full Gallery <ArrowRight className="w-4 h-4" />
-              </Link>
-            </Button>
-          </motion.div>
-
-          <GalleryPreview />
-        </div>
-      </section>
 
       {/* Testimonials */}
       <TestimonialsCarousel />
