@@ -118,7 +118,7 @@ const Index = () => {
                 </Link>
               </Button>
               <Button asChild variant="hero-outline" size="xl">
-                <Link to="/about">Learn More</Link>
+                <Link to="/team">Meet the Teams</Link>
               </Button>
             </div>
 
